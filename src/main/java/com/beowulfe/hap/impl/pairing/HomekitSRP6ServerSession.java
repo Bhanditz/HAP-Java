@@ -2,6 +2,7 @@ package com.beowulfe.hap.impl.pairing;
 
 
 import java.math.BigInteger;
+import java.security.MessageDigest;
 
 import com.nimbusds.srp6.SRP6ClientEvidenceContext;
 import com.nimbusds.srp6.SRP6CryptoParams;
@@ -45,7 +46,8 @@ import com.nimbusds.srp6.URoutineContext;
  * @author Vladimir Dzhuvinov
  */
 public class HomekitSRP6ServerSession extends SRP6Session {
-	
+	private SRP6Routines SRP6Routines = new SRP6Routines();
+	private MessageDigest digest;
 	
 	/**
 	 * Enumerates the states of a server-side SRP-6a authentication session.

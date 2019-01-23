@@ -1,5 +1,11 @@
 package com.beowulfe.hap.impl.json;
 
+import com.beowulfe.hap.HomekitAccessory;
+import com.beowulfe.hap.Service;
+import com.beowulfe.hap.characteristics.Characteristic;
+import com.beowulfe.hap.impl.HomekitRegistry;
+import com.beowulfe.hap.impl.http.HttpResponse;
+
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -13,24 +19,19 @@ import javax.json.Json;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
-
-import com.beowulfe.hap.HomekitAccessory;
-import com.beowulfe.hap.Service;
-import com.beowulfe.hap.characteristics.Characteristic;
-import com.beowulfe.hap.impl.HomekitRegistry;
-import com.beowulfe.hap.impl.http.HttpResponse;
+import javax.json.JsonWriter;
 
 public class AccessoryController {
 
 	private final HomekitRegistry registry;
-	
+
 	public AccessoryController(HomekitRegistry registry) {
 		this.registry = registry;
 	}
 
 	public HttpResponse listing() throws Exception {
 		JsonArrayBuilder accessories = Json.createArrayBuilder();
-		
+
 		Map<Integer, List<CompletableFuture<JsonObject>>> accessoryServiceFutures = new HashMap<>();
 		for (HomekitAccessory accessory: registry.getAccessories()) {
 			int iid = 0;
@@ -41,7 +42,7 @@ public class AccessoryController {
 			}
 			accessoryServiceFutures.put(accessory.getId(), serviceFutures);
 		}
-		
+
 		Map<Integer, JsonArrayBuilder> serviceArrayBuilders = new HashMap<>();
 		for (Entry<Integer, List<CompletableFuture<JsonObject>>> entry: accessoryServiceFutures.entrySet()) {
 			JsonArrayBuilder arr = Json.createArrayBuilder();
@@ -50,19 +51,21 @@ public class AccessoryController {
 			}
 			serviceArrayBuilders.put(entry.getKey(), arr);
 		}
-		
+
 		for (HomekitAccessory accessory: registry.getAccessories()) {
 			accessories.add(Json.createObjectBuilder().add("aid", accessory.getId()).add("services", serviceArrayBuilders.get(accessory.getId())));
 		}
-						
+
 		try(ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-			Json.createWriter(baos).write(
+			JsonWriter writer = Json.createWriter(baos);
+			writer.write(
 				Json.createObjectBuilder().add("accessories", accessories).build()
 			);
+			writer.close();
 			return new HapJsonResponse(baos.toByteArray());
 		}
 	}
-	
+
 	private CompletableFuture<JsonObject> toJson(Service service, int interfaceId) throws Exception {
 		JsonObjectBuilder builder = Json.createObjectBuilder()
 			.add("iid", ++interfaceId)
@@ -72,7 +75,7 @@ public class AccessoryController {
 		for (Characteristic characteristic: characteristics) {
 			characteristicFutures.add(characteristic.toJson(++interfaceId));
 		}
-		
+
 		return CompletableFuture.allOf(characteristicFutures.toArray(new CompletableFuture<?>[characteristicFutures.size()]))
 			.thenApply(v -> {
 				JsonArrayBuilder jsonCharacteristics = Json.createArrayBuilder();

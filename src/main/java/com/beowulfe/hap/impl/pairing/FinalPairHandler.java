@@ -62,7 +62,7 @@ class FinalPairHandler {
 			throw new Exception("Invalid signature");
 		}
 		authInfo.createUser(authInfo.getMac()+new String(username, StandardCharsets.UTF_8), ltpk);
-		advertiser.setDiscoverable(false);
+//		advertiser.setDiscoverable(false);
 		return createResponse();
 	}
 	
