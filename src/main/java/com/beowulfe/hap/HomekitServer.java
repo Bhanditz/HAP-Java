@@ -7,6 +7,7 @@ import java.security.InvalidAlgorithmParameterException;
 
 import com.beowulfe.hap.impl.HomekitBridge;
 import com.beowulfe.hap.impl.HomekitUtils;
+import com.beowulfe.hap.impl.HomekitWebHandler;
 import com.beowulfe.hap.impl.http.impl.HomekitHttpServer;
 
 /**
@@ -25,7 +26,7 @@ import com.beowulfe.hap.impl.http.impl.HomekitHttpServer;
  */
 public class HomekitServer {
 
-	private final HomekitHttpServer http;
+	private final HomekitWebHandler http;
 	private final InetAddress localAddress;
 	
 	/**
@@ -42,7 +43,21 @@ public class HomekitServer {
 		this.localAddress = localAddress;
 		http = new HomekitHttpServer(port, nThreads);
 	}
-	
+
+	/**
+	 * Constructor. Contains an argument indicating the number of threads to use in the http server. The other constructors
+	 * default this to the number of available processors, however you may increase this in an environment with many users
+	 * and/or blocking accessory implementations.
+	 *
+	 * @param localAddress local address to bind to.
+	 * @param http http service that
+	 * @throws IOException when the server cannot bind to the supplied port
+	 */
+	public HomekitServer(InetAddress localAddress, HomekitWebHandler http) throws IOException {
+		this.localAddress = localAddress;
+		this.http = http;
+	}
+
 	/**
 	 * Constructor
 	 * 
