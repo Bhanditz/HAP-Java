@@ -89,6 +89,16 @@ public class HomekitRoot {
 			webHandler.resetConnections();
 		}
 	}
+
+	/**
+	 * Terminate all existing connections and allow the clients to reconnect to see the updated accessory list.
+	 */
+	public void resetConnections() {
+		if (started) {
+			registry.reset();
+			webHandler.resetConnections();
+		}
+	}
 	
 	/**
 	 * Starts advertising and handling the previously added Homekit accessories. You should try to call this after you have used the 
