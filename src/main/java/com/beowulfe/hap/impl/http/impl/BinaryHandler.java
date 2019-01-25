@@ -5,7 +5,9 @@ import com.beowulfe.hap.impl.http.HomekitClientConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import io.netty.buffer.ByteBuf;
@@ -61,14 +63,14 @@ public class BinaryHandler extends ByteToMessageCodec<ByteBuf> {
 	}
 	
 	private void traceData(String msg, byte[] b, ChannelHandlerContext ctx) throws Exception {
-//		if (logger.isTraceEnabled() && b.length > 0) {
-//			try (ByteArrayOutputStream stream = new ByteArrayOutputStream()) {
-//				HexDump.dump(b, 0, stream, 0);
-//				stream.flush();
-//				logger.trace(String.format("%s [%s]:%n%s%n", msg, ctx.channel().remoteAddress().toString(),
-//						stream.toString(StandardCharsets.UTF_8.name())));
-//			}
-//		}
+		if (logger.isTraceEnabled() && b.length > 0) {
+			try (ByteArrayOutputStream stream = new ByteArrayOutputStream()) {
+				HexDump.dump(b, 0, stream, 0);
+				stream.flush();
+				logger.trace(String.format("%s [%s]:%n%s%n", msg, ctx.channel().remoteAddress().toString(),
+						stream.toString(StandardCharsets.UTF_8.name())));
+			}
+		}
 	}
 
 }
